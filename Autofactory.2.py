@@ -15,19 +15,19 @@ import mysql.connector
 def get_connection():
     """Establece y retorna una conexión a la base de datos"""
     try:
-        conexion = mysql.connector.connect(
+        conexion = mysql.connector.connect( # Se intenta establecer una conexión a la base de datos MySQL utilizando el módulo mysql.connector. Se pasan los parámetros necesarios para la conexión, como el host, usuario, contraseña y nombre de la base de datos. Si la conexión es exitosa, se retorna el objeto de conexión.
             host="localhost",
             user="root",
             password="",
             database="autofactory"
         )
-        if conexion.is_connected():
-            print("✅ Conexión exitosa a MySQL")
-            return conexion
-    except mysql.connector.Error as e:
-        print(f"❌ Error de conexión: {e}")
-        messagebox.showerror("Error de Conexión", 
-                            f"No se pudo conectar a la base de datos:\n{e}")
+        if conexion.is_connected(): # Se verifica si la conexión se ha establecido correctamente utilizando el método is_connected() del objeto de conexión. Si la conexión es exitosa, se imprime un mensaje de éxito en la consola y se retorna el objeto de conexión para su uso posterior en el programa.
+            print("✅ Conexión exitosa a MySQL") # Se imprime un mensaje de éxito en la consola indicando que la conexión a MySQL se ha establecido correctamente.
+            return conexion # Se retorna el objeto de conexión para su uso posterior en el programa.
+    except mysql.connector.Error as e: # Se captura cualquier excepción de tipo mysql.connector.Error que pueda ocurrir durante el intento de conexión a la base de datos. Si ocurre un error, se imprime un mensaje de error en la consola y se muestra un cuadro de diálogo emergente utilizando messagebox.showerror() para informar al usuario sobre el problema de conexión.
+        print(f"❌ Error de conexión: {e}") # Se imprime un mensaje de error en la consola indicando que ha ocurrido un error de conexión, junto con el mensaje de error específico (e) que proporciona detalles sobre lo que salió mal durante el intento de conexión a la base de datos.
+        messagebox.showerror("Error de Conexión",  #    Se muestra un cuadro de diálogo emergente utilizando messagebox.showerror() para informar al usuario sobre el problema de conexión a la base de datos. El cuadro de diálogo tiene el título "Error de Conexión" y el mensaje que se muestra incluye el texto "No se pudo conectar a la base de datos:" seguido del mensaje de error específico (e) que proporciona detalles sobre lo que salió mal durante el intento de conexión.
+                            f"No se pudo conectar a la base de datos:\n{e}") # Se muestra un cuadro de diálogo emergente utilizando messagebox.showerror() para informar al usuario sobre el problema de conexión a la base de datos. El cuadro de diálogo tiene el título "Error de Conexión" y el mensaje que se muestra incluye el texto "No se pudo conectar a la base de datos:" seguido del mensaje de error específico (e) que proporciona detalles sobre lo que salió mal durante el intento de conexión.
         return None
 
 # Elimina la función get_conection() anterior y usa esta
@@ -167,20 +167,20 @@ def guardar_modelo():
 
 # ==================== FUNCIONES PARA CARGAR MODELOS ====================
 def cargar_modelos():
-    """Carga los modelos desde la BD al Treeview"""
+    """Carga los modelos desde la BD al Treeview""" # Se define una función llamada cargar_modelos() que se encargará de cargar los modelos de vehículos desde la base de datos y mostrarlos en un widget Treeview. Esta función se puede llamar para actualizar la lista de modelos cada vez que se realice una operación de guardado, actualización o eliminación, asegurando que la información mostrada en la interfaz esté siempre actualizada con los datos almacenados en la base de datos.
     # Limpiar treeview
-    for row in tree_modelos.get_children():
-        tree_modelos.delete(row)
+    for row in tree_modelos.get_children(): # Se itera sobre todas las filas actualmente presentes en el widget Treeview llamado tree_modelos utilizando un bucle for. El método get_children() del Treeview devuelve una lista de identificadores de las filas presentes en el Treeview. Para cada identificador de fila (row) obtenido, se llama al método delete() del Treeview para eliminar esa fila del Treeview. Esto se hace para limpiar el Treeview antes de cargar los nuevos datos desde la base de datos, asegurando que no haya información duplicada o desactualizada en la interfaz.
+        tree_modelos.delete(row) # Se elimina la fila actual del Treeview utilizando el método delete() del widget tree_modelos, pasando como argumento el identificador de la fila (row) que se desea eliminar. Esto se hace para limpiar el Treeview antes de cargar los nuevos datos desde la base de datos, asegurando que no haya información duplicada o desactualizada en la interfaz.
     
-    conexion = get_connection()
-    if conexion:
+    conexion = get_connection() # Se llama a la función get_connection() para establecer una conexión con la base de datos. Esta función devuelve un objeto de conexión que se almacena en la variable conexion. Si la conexión es exitosa, se puede utilizar esta variable para ejecutar consultas y procedimientos almacenados en la base de datos.
+    if conexion: 
         try:
-            cursor = conexion.cursor(dictionary=True)
-            cursor.callproc('sp_obtener_modelos')
+            cursor = conexion.cursor(dictionary=True) # Se crea un cursor a partir de la conexión a la base de datos utilizando el método cursor() del objeto conexion. El argumento dictionary=True se pasa para que los resultados devueltos por el cursor sean en forma de diccionario, lo que facilita el acceso a los valores por nombre de columna en lugar de por índice. Este cursor se almacena en la variable cursor para su posterior uso en la ejecución del procedimiento almacenado.
+            cursor.callproc('sp_obtener_modelos') # Se llama al procedimiento almacenado sp_obtener_modelos utilizando el método callproc() del cursor. Este procedimiento almacenado se encarga de obtener la lista de modelos de vehículos desde la base de datos. Al llamar a este procedimiento, se ejecuta la lógica definida en el procedimiento almacenado y se obtienen los resultados correspondientes, que luego se pueden procesar para mostrar en la interfaz.
             
-            for result in cursor.stored_results():
-                for row in result.fetchall():
-                    tree_modelos.insert("", tk.END, values=(
+            for result in cursor.stored_results(): # Se itera sobre los resultados devueltos por el procedimiento almacenado utilizando un bucle for. El método stored_results() del cursor devuelve un generador que produce los resultados de las consultas ejecutadas dentro del procedimiento almacenado. En este caso, se espera que el procedimiento sp_obtener_modelos devuelva un conjunto de resultados que contengan la información de los modelos de vehículos almacenados en la base de datos.
+                for row in result.fetchall(): # Se itera sobre cada fila del resultado actual utilizando un bucle for. El método fetchall() del resultado devuelve una lista de filas, donde cada fila es un diccionario (debido a dictionary=True al crear el cursor) que contiene los datos de un modelo de vehículo. Para cada fila obtenida, se accede a los valores de las columnas utilizando los nombres de las columnas como claves del diccionario (por ejemplo, row['id'], row['codigo_unico'], etc.) para obtener la información correspondiente a cada modelo.
+                    tree_modelos.insert("", tk.END, values=( # Se inserta una nueva fila en el widget Treeview llamado tree_modelos utilizando el método insert(). El primer argumento "" indica que la nueva fila se insertará al nivel raíz del Treeview, el segundo argumento tk.END indica que la nueva fila se agregará al final de la lista de filas existentes, y el argumento values=() se utiliza para especificar los valores que se mostrarán en las columnas de la nueva fila. En este caso, se pasan los valores obtenidos de la fila actual del resultado del procedimiento almacenado, como el ID, código único, nombre, categoría (con la primera letra en mayúscula), tiempo estándar de ensamblaje y versiones disponibles (limitando a 50 caracteres si es necesario). Esto permite mostrar la información de cada modelo de vehículo en la interfaz de manera organizada y legible.
                         row['id'],
                         row['codigo_unico'],
                         row['nombre'],
@@ -188,21 +188,21 @@ def cargar_modelos():
                         row['tiempo_estandar_ensamblaje'],
                         (row['versiones'][:50] + "...") if row['versiones'] and len(row['versiones']) > 50 else row['versiones']
                     ))
-        except mysql.connector.Error as e:
-            messagebox.showerror("Error", f"Error al cargar modelos: {e}")
+        except mysql.connector.Error as e: # Se captura cualquier excepción de tipo mysql.connector.Error que ocurra durante la ejecución del bloque try. Si ocurre un error relacionado con la base de datos, se muestra un mensaje de error utilizando messagebox.showerror() con el título "Error" y un mensaje que indica que hubo un error al cargar los modelos, incluyendo el mensaje de error específico (e) para proporcionar detalles sobre lo que salió mal durante la operación de carga de modelos desde la base de datos.
+            messagebox.showerror("Error", f"Error al cargar modelos: {e}") # Se muestra un mensaje de error utilizando messagebox.showerror() con el título "Error" y un mensaje que indica que hubo un error al cargar los modelos, incluyendo el mensaje de error específico (e) para proporcionar detalles sobre lo que salió mal durante la operación de carga de modelos desde la base de datos.
         finally:
             cursor.close()
             conexion.close()
 
 def limpiar_campos_modelo():
     """Limpia todos los campos del formulario de modelos"""
-    codigo.delete(0, tk.END)
-    nombre.delete(0, tk.END)
-    categoria.set('')
-    versiones.delete(0, tk.END)
-    tiempo.delete(0, tk.END)
-    componentes.delete(0, tk.END)
-    especificaciones.delete(0, tk.END)
+    codigo.delete(0, tk.END) # Se borra el contenido del campo de entrada para el código del modelo utilizando el método delete() del widget Entry llamado codigo. El primer argumento 0 indica que se debe comenzar a borrar desde el primer carácter, y tk.END indica que se debe borrar hasta el final del contenido del campo. Esto limpia completamente el campo de entrada para que el usuario pueda ingresar un nuevo código sin tener que eliminar manualmente el contenido anterior.
+    nombre.delete(0, tk.END) # Se borra el contenido del campo de entrada para el nombre del modelo utilizando el método delete() del widget Entry llamado nombre. El primer argumento 0 indica que se debe comenzar a borrar desde el primer carácter, y tk.END indica que se debe borrar hasta el final del contenido del campo. Esto limpia completamente el campo de entrada para que el usuario pueda ingresar un nuevo nombre sin tener que eliminar manualmente el contenido anterior.
+    categoria.set('') # Se restablece la selección del Combobox para la categoría utilizando el método set() del widget Combobox llamado categoria. Al pasar una cadena vacía ('') como argumento, se borra cualquier selección previa y se deja el Combobox sin una opción seleccionada. Esto permite que el usuario pueda seleccionar una nueva categoría para el modelo sin que quede una selección anterior visible.
+    versiones.delete(0, tk.END) # Se borra el contenido del campo de entrada para las versiones disponibles utilizando el método delete() del widget Entry llamado versiones. El primer argumento 0 indica que se debe comenzar a borrar desde el primer carácter, y tk.END indica que se debe borrar hasta el final del contenido del campo. Esto limpia completamente el campo de entrada para que el usuario pueda ingresar nuevas versiones sin tener que eliminar manualmente el contenido anterior.
+    tiempo.delete(0, tk.END) # Se borra el contenido del campo de entrada para el tiempo estándar de ensamblaje utilizando el método delete() del widget Entry llamado tiempo. El primer argumento 0 indica que se debe comenzar a borrar desde el primer carácter, y tk.END indica que se debe borrar hasta el final del contenido del campo. Esto limpia completamente el campo de entrada para que el usuario pueda ingresar un nuevo tiempo sin tener que eliminar manualmente el contenido anterior.
+    componentes.delete(0, tk.END) # Se borra el contenido del campo de entrada para los componentes requeridos utilizando el método delete() del widget Entry llamado componentes. El primer argumento 0 indica que se debe comenzar a borrar desde el primer carácter, y tk.END indica que se debe borrar hasta el final del contenido del campo. Esto limpia completamente el campo de entrada para que el usuario pueda ingresar nuevos componentes sin tener que eliminar manualmente el contenido anterior.
+    especificaciones.delete(0, tk.END) # Se borra el contenido del campo de entrada para las especificaciones técnicas utilizando el método delete() del widget Entry llamado especificaciones. El primer argumento 0 indica que se debe comenzar a borrar desde el primer carácter, y tk.END indica que se debe borrar hasta el final del contenido del campo. Esto limpia completamente el campo de entrada para que el usuario pueda ingresar nuevas especificaciones sin tener que eliminar manualmente el contenido anterior.
 
 # Ahora, asocia la función al botón Guardar
 btn_save1.config(command=guardar_modelo) # Se configura el botón btn_save1 para que ejecute la función guardar_modelo() cuando se haga clic en él. Esto se logra utilizando el método config() del widget Button, pasando el argumento command=guardar_modelo. De esta manera, cuando el usuario haga clic en el botón "Guardar", se ejecutará la función guardar_modelo() que se encargará de obtener los datos del formulario, validar los campos, conectar a la base de datos y ejecutar el procedimiento almacenado para guardar el nuevo modelo de vehículo.
@@ -515,3 +515,4 @@ tk.Label(info_frame,
         font=("Arial", 9), bg="#f0f0f0", justify=tk.LEFT).pack()
 
 root.mainloop()
+
